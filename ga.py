@@ -147,18 +147,11 @@ class Individual_Grid(object):
                         for h in range(1, random_height):
                             if y-h < 0:
                                 genome[y-h+1][x] = "T"
-                                print("h")
                                 break
                             genome[y-h][x] = "|"
                         if y-random_height > 0:
-                            print("ha")
                             genome[y-random_height][x] = "T"
                     genome[y][x] = mutation
-                    mutation = random.choices(possible_mutations, weights=total_mutation_weights.values())
-                    if mutation.pop() == "|":
-                        random_height = range(1,4)
-
-                    genome[y][x] = mutation.pop()
         return genome
     
     # Create zero or more children from self and other
