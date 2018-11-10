@@ -68,11 +68,31 @@ class Individual_Grid(object):
         # STUDENT also consider weighting the different tile types so it's not uniformly random
         # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
 
+        #current implementation:
+        #I implemented this in the weirdest way ever so feel free to change
         left = 1
         right = width - 1
         for y in range(height):
             for x in range(left, right):
-                pass
+                possible_mutations = ["-","X","?","M","B","o","|","T","E"]
+                #basically fill a list w/ however many of the block type you want
+                #so if u fill it up with more X's then there is a higher chance of getting an X
+                mutation_weights = {"-":50, "X":30, "?":20, "M":10, "B":30, "o":10, "|":10,\
+                    "T":10, "E":20}
+                    
+                #can't mutate into a floating pipe/enemy
+                if y+1 < height and (genome[y+1][x] != "X" and genome[y+1][x] != "|"):
+                    possible_mutations.remove("|")
+                    mutation_weights.pop("|")
+                if y+1 < height and (genome[y+1][x] != "X" and genome[y+1][x] != "B" and genome[y+1][x] != "?"):
+                    possible_mutations.remove("E")
+                    mutation_weights.pop("E")
+
+                #40% chance of mutating
+                to_mutate = random.choice(range(0, 100))
+                if to_mutate > 60:
+                    mutation = random.choices(population=possible_mutations, weights=mutation_weights.values())
+                    genome[y][x] = mutation
         return genome
 
     # Create zero or more children from self and other
@@ -84,11 +104,17 @@ class Individual_Grid(object):
         right = width - 1
         for y in range(height):
             for x in range(left, right):
-                # STUDENT Which one should you take?  Self, or other?  Why?
+                # STUDENT randomly pick gene from self/other
+                #threshold for selecting gene from the other parent (so it's biased towards self)
+                other_threshhold = 60
+                parent = random.choice(range(0,100))
+                if parent > other_threshhold:
+                    new_genome[y][x] = other.genome[y][x]
                 # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
-                pass
+        child = Individual_Grid(new_genome)
+        child.genome = child.mutate(new_genome)
         # do mutation; note we're returning a one-element tuple here
-        return (Individual_Grid(new_genome),)
+        return child
 
     # Turn the genome into a level string (easy for this genome)
     def to_level(self):
@@ -153,6 +179,7 @@ class Individual_DE(object):
 
     # Calculate and cache fitness
     def calculate_fitness(self):
+        print(self.genome)
         measurements = metrics.metrics(self.to_level())
         # Default fitness function: Just some arbitrary combination of a few criteria.  Is it good?  Who knows?
         # STUDENT Add more metrics?
@@ -347,6 +374,37 @@ def generate_successors(population):
     results = []
     # STUDENT Design and implement this
     # Hint: Call generate_children() on some individuals and fill up results.
+    #doing roulette selection:
+    total_fitness = 0
+    for individual in population:
+        total_fitness += individual.fitness()
+
+    successors = []
+    while len(successors) < len(population)/3:
+        #find successors
+        spin = 0
+        if total_fitness > 0:
+            spin = random.choice(range(0, int(total_fitness)))
+        else:
+            spin = random.choice(range(int(total_fitness), 0))
+        partial_sum = 0
+        successor = None
+        for individual in population:
+            partial_sum += individual.fitness()
+            successor = individual
+            if partial_sum > spin:
+                break
+        successors.append(successor)
+
+    #generate children from successors
+    while len(results) < len(population):
+        #get every 2 individuals from successors
+        for individual, other in zip(successors[0::2], successors[1::2]):
+            if len(results) > len(population):
+                break
+            child = individual.generate_children(other)
+            results.append(child)
+
     return results
 
 
@@ -354,11 +412,14 @@ def ga():
     # STUDENT Feel free to play with this parameter
     pop_limit = 480
     # Code to parallelize some computations
+
     batches = os.cpu_count()
     if pop_limit % batches != 0:
         print("It's ideal if pop_limit divides evenly into " + str(batches) + " batches.")
     batch_size = int(math.ceil(pop_limit / batches))
     with mpool.Pool(processes=os.cpu_count()) as pool:
+        print("ya")
+
         init_time = time.time()
         # STUDENT (Optional) change population initialization
         population = [Individual.random_individual() if random.random() < 0.9
@@ -368,6 +429,7 @@ def ga():
         population = pool.map(Individual.calculate_fitness,
                               population,
                               batch_size)
+        print("ya")
         init_done = time.time()
         print("Created and calculated initial population statistics in:", init_done - init_time, "seconds")
         generation = 0
@@ -416,6 +478,7 @@ if __name__ == "__main__":
     now = time.strftime("%m_%d_%H_%M_%S")
     # STUDENT You can change this if you want to blast out the whole generation, or ten random samples, or...
     for k in range(0, 10):
+        print("ya")
         with open("levels/" + now + "_" + str(k) + ".txt", 'w') as f:
             for row in final_gen[k].to_level():
                 f.write("".join(row) + "\n")
