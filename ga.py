@@ -67,6 +67,7 @@ class Individual_Grid(object):
             for i in range(-4, 4):
                 for j in range(-4, 4):
                     try:
+                        if self.genome[y-i][x-j] not in ["-", "E", "o", "|"]:
                             return True
                     except IndexError:
                         continue
@@ -114,12 +115,17 @@ class Individual_Grid(object):
 <<<<<<< HEAD
                 if y < height - 4 and genome[y][x] in {"X", "?", "M", "B", "o", "T"}:
 =======
+                if y < height - 4 and genome[height-y-1][width-x-1] in ["X", "?", "M", "B", "o", "T"]:
 >>>>>>> azachow
                     if Individual_Grid.fourByFour(self, x, y) is False:
+                        possible_mutations = ["-"]
                         mutation_weights = {"-":100}
                    
 <<<<<<< HEAD
 =======
+                if y is height - 1:
+                    if genome[y][x] is "E":
+                        genome[y][x] = "-"
 >>>>>>> azachow
 
                 #if at bottom, only want to make pits or floor
