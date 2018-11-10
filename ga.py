@@ -248,12 +248,14 @@ class Individual_DE(object):
         # STUDENT Add more metrics?
         # STUDENT Improve this with any code you like
         coefficients = dict(
-            meaningfulJumpVariance=0.5,
+            length=0.7,
+            meaningfulJumps=2.0,
+            meaningfulJumpVariance=-1.0,
             negativeSpace=0.6,
-            pathPercentage=0.5,
-            emptyPercentage=0.6,
-            linearity=-0.5,
-            solvability=2.0
+            pathPercentage=1.0,
+            emptyPercentage=0.8,
+            linearity=-2.0,
+            solvability=100.0
         )
         penalties = 0
         # STUDENT For example, too many stairs are unaesthetic.  Let's penalize that
