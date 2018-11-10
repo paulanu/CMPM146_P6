@@ -85,11 +85,10 @@ class Individual_Grid(object):
         right = width - 1
         for y in range(height):
             for x in range(left, right):
-                possible_mutations = ["-","X","?","M","B","o","|","T","E"]
+                possible_mutations = ["-","X","?","M","B","o","|","E"]
                 #basically fill a list w/ however many of the block type you want
                 #so if u fill it up with more X's then there is a higher chance of getting an X
-                mutation_weights = {"-":50, "X":20, "?":5, "M":5, "B":20, "o":5, "|":5,\
-                    "T":5, "E":10}
+                mutation_weights = {"-":40, "|":5, "E":10}
                 floating_weights = {"X":20, "?":5, "M":5, "B":20, "o":5}
                     
                 #can't mutate into a floating pipe/enemy
@@ -108,11 +107,11 @@ class Individual_Grid(object):
 
                     #BUT higher chance of mutating it if it is next to another block!
                     if genome[y][x-1] in floating_weights or genome[y][x+1] in floating_weights:
-                        floating_weights["X"] += 5
-                        floating_weights["B"] += 5
-                        floating_weights["?"] += 1
-                        floating_weights["M"] += 1
-                        
+                        floating_weights["X"] += 10
+                        floating_weights["B"] += 10
+                        floating_weights["?"] += 2
+                        floating_weights["M"] += 2
+
                 if y < 4 and genome[y][x] in {"X", "?", "M", "B", "o", "T"}:
                     if Individual_Grid.fourByFour(self, x, y) is False:
                         possible_mutations = {"-"}
@@ -141,6 +140,9 @@ class Individual_Grid(object):
                     total_mutation_weights = dict(mutation_weights)
                     total_mutation_weights.update(floating_weights)
                     mutation = random.choices(possible_mutations, weights=total_mutation_weights.values())
+                    if mutation.pop() == "|":
+                        random_height = range(1,4)
+
                     genome[y][x] = mutation.pop()
         return genome
     
