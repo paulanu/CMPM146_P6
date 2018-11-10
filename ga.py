@@ -63,6 +63,16 @@ class Individual_Grid(object):
             self.calculate_fitness()
         return self._fitness
 
+    def fourByFour(self, x, y):
+            for i in range(-4, 4):
+                for j in range(-4, 4):
+                    try:
+                        if self.genome[y-i][x-j] not in {"-", "E", "o", "|"}:
+                            return True
+                    except IndexError:
+                        continue
+            return False
+
     # Mutate a genome into a new genome.  Note that this is a _genome_, not an individual!
     def mutate(self, genome):
         # STUDENT implement a mutation operator, also consider not mutating this individual
@@ -88,14 +98,17 @@ class Individual_Grid(object):
                 if y+1 < height and (genome[y+1][x] != "X" and genome[y+1][x] != "B" and genome[y+1][x] != "?"):
                     possible_mutations.remove("E")
                     mutation_weights.pop("E")
-
+                if y < 4 and genome[y][x] in {"X", "?", "M", "B", "o", "T"}:
+                    if Individual_Grid.fourByFour(self, x, y) is False:
+                        possible_mutations = {"-"}
+                        mutation_weights = {"-":100}
                 #40% chance of mutating
                 to_mutate = random.choice(range(0, 100))
                 if to_mutate > 60:
                     mutation = random.choices(possible_mutations, weights=mutation_weights.values())
                     genome[y][x] = mutation.pop()
         return genome
-
+    
     # Create zero or more children from self and other
     def generate_children(self, other):
         new_genome = copy.deepcopy(self.genome)
