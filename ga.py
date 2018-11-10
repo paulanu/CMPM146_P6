@@ -112,7 +112,7 @@ class Individual_Grid(object):
                         floating_weights["?"] += 2
                         floating_weights["M"] += 2
 
-                if y < 4 and genome[y][x] in {"X", "?", "M", "B", "o", "T"}:
+                if y < height - 4 and genome[y][x] in {"X", "?", "M", "B", "o", "T"}:
                     if Individual_Grid.fourByFour(self, x, y) is False:
                         possible_mutations = {"-"}
                         mutation_weights = {"-":100}
@@ -139,11 +139,17 @@ class Individual_Grid(object):
                 if to_mutate > 997:
                     total_mutation_weights = dict(mutation_weights)
                     total_mutation_weights.update(floating_weights)
-                    mutation = random.choices(possible_mutations, weights=total_mutation_weights.values())
-                    if mutation.pop() == "|":
-                        random_height = range(1,4)
-
-                    genome[y][x] = mutation.pop()
+                    mutation = random.choices(possible_mutations, weights=total_mutation_weights.values()).pop()
+                    if mutation == "|":
+                        random_height = random.choice(range(1,4))
+                        for h in range(1, random_height+1):
+                            if y-h < 0:
+                                genome[y-h+1][x] = "T"
+                                break
+                            genome[y-h][x] = "|"
+                        if y-random_height > 0:
+                            genome[y-random_height][x] = "T"
+                    genome[y][x] = mutation
         return genome
     
     # Create zero or more children from self and other
