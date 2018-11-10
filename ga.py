@@ -114,8 +114,10 @@ class Individual_Grid(object):
 
                 if y < height - 4 and genome[y][x] in {"X", "?", "M", "B", "o", "T"}:
                     if Individual_Grid.fourByFour(self, x, y) is False:
-                        possible_mutations = {"-"}
-                        mutation_weights = {"-":100}
+                        for key in floating_weights.keys():
+                            possible_mutations.remove(key)
+                        floating_weights = {}
+                        mutation_weights["-"] = 100
                    
 
                 #if at bottom, only want to make pits or floor
@@ -139,15 +141,19 @@ class Individual_Grid(object):
                 if to_mutate > 997:
                     total_mutation_weights = dict(mutation_weights)
                     total_mutation_weights.update(floating_weights)
+                    print(possible_mutations, total_mutation_weights)
+
                     mutation = random.choices(possible_mutations, weights=total_mutation_weights.values()).pop()
                     if mutation == "|":
                         random_height = random.choice(range(1,4))
-                        for h in range(1, random_height+1):
+                        for h in range(1, random_height):
                             if y-h < 0:
                                 genome[y-h+1][x] = "T"
+                                print("h")
                                 break
                             genome[y-h][x] = "|"
                         if y-random_height > 0:
+                            print("ha")
                             genome[y-random_height][x] = "T"
                     genome[y][x] = mutation
         return genome
