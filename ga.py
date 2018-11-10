@@ -46,12 +46,14 @@ class Individual_Grid(object):
         # Default fitness function: Just some arbitrary combination of a few criteria.  Is it good?  Who knows?
         # STUDENT Modify this, and possibly add more metrics.  You can replace this with whatever code you like.
         coefficients = dict(
-            meaningfulJumpVariance=0.5,
+            length=0.7,
+            meaningfulJumps=2.0,
+            meaningfulJumpVariance=-1.0,
             negativeSpace=0.6,
-            pathPercentage=0.5,
-            emptyPercentage=0.6,
-            linearity=-0.5,
-            solvability=2.0
+            pathPercentage=1.0,
+            emptyPercentage=0.8,
+            linearity=-2.0,
+            solvability=100.0
         )
         self._fitness = sum(map(lambda m: coefficients[m] * measurements[m],
                                 coefficients))
@@ -67,7 +69,7 @@ class Individual_Grid(object):
             for i in range(-4, 4):
                 for j in range(-4, 4):
                     try:
-                        if self.genome[y-i][x-j] not in ["-", "E", "o", "|"]:
+                        if self.genome[y-i][x-j] not in {"-", "E", "o", "|"}:
                             return True
                     except IndexError:
                         continue
@@ -112,14 +114,13 @@ class Individual_Grid(object):
                         floating_weights["?"] += 2
                         floating_weights["M"] += 2
 
-                if y < height - 4 and genome[height-y-1][width-x-1] in ["X", "?", "M", "B", "o", "T"]:
+                if y < 4 and genome[y][x] in {"X", "?", "M", "B", "o", "T"}:
                     if Individual_Grid.fourByFour(self, x, y) is False:
-                        possible_mutations = ["-"]
-                        mutation_weights = {"-":100}
+                        for key in floating_weights.keys():
+                            possible_mutations.remove(key)
+                        floating_weights = {}
+                        mutation_weights["-"] = 100
                    
-                if y is height - 1:
-                    if genome[y][x] is "E":
-                        genome[y][x] = "-"
 
                 #if at bottom, only want to make pits or floor
                 if y == height:
@@ -145,14 +146,21 @@ class Individual_Grid(object):
                     mutation = random.choices(possible_mutations, weights=total_mutation_weights.values()).pop()
                     if mutation == "|":
                         random_height = random.choice(range(1,4))
-                        for h in range(1, random_height+1):
+                        for h in range(1, random_height):
                             if y-h < 0:
                                 genome[y-h+1][x] = "T"
+                                print("h")
                                 break
                             genome[y-h][x] = "|"
                         if y-random_height > 0:
+                            print("ha")
                             genome[y-random_height][x] = "T"
                     genome[y][x] = mutation
+                    mutation = random.choices(possible_mutations, weights=total_mutation_weights.values())
+                    if mutation.pop() == "|":
+                        random_height = range(1,4)
+
+                    genome[y][x] = mutation.pop()
         return genome
     
     # Create zero or more children from self and other
