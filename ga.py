@@ -78,8 +78,9 @@ class Individual_Grid(object):
                 possible_mutations = ["-","X","?","M","B","o","|","T","E"]
                 #basically fill a list w/ however many of the block type you want
                 #so if u fill it up with more X's then there is a higher chance of getting an X
-                mutation_weights = {"-":50, "X":30, "?":20, "M":10, "B":30, "o":10, "|":10,\
-                    "T":10, "E":20}
+                mutation_weights = {"-":50, "X":20, "?":5, "M":5, "B":20, "o":5, "|":5,\
+                    "T":5, "E":10}
+                floating_weights = {"X":20, "?":5, "M":5, "B":20, "o":5}
                     
                 #can't mutate into a floating pipe/enemy
                 if y+1 < height and (genome[y+1][x] != "X" and genome[y+1][x] != "|"):
@@ -88,11 +89,44 @@ class Individual_Grid(object):
                 if y+1 < height and (genome[y+1][x] != "X" and genome[y+1][x] != "B" and genome[y+1][x] != "?"):
                     possible_mutations.remove("E")
                     mutation_weights.pop("E")
+                    mutation_weights.pop("o")
+
+                    #less chance of mutating floating block
+                    floating_weights["X"] -= 15
+                    floating_weights["B"] -= 15
+                    floating_weights["?"] -= 2
+                    floating_weights["M"] -= 2
+
+                    #BUT higher chance of mutating it if it is next to another block!
+                    if genome[y][x-1] in floating_weights or genome[y][x+1] in floating_weights:
+                        floating_weights["X"] += 5
+                        floating_weights["B"] += 5
+                        floating_weights["?"] += 1
+                        floating_weights["M"] += 1
+
+                #if at bottom, only want to make pits or floor
+                if y == height:
+                    mutation_weights["-"] = 10
+                    possible_mutations.remove("E")
+                    mutation_weights.pop("E")
+                    possible_mutations.remove("T")
+                    mutation_weights.pop("T")
+                    possible_mutations.remove("M")
+                    mutation_weights.pop("M")
+                    possible_mutations.remove("B")
+                    mutation_weights.pop("B")
+                    possible_mutations.remove("o")
+                    mutation_weights.pop("o")
+                    possible_mutations.remove("?")
+                    mutation_weights.pop("?")
 
                 #40% chance of mutating
-                to_mutate = random.choice(range(0, 100))
-                if to_mutate > 60:
-                    mutation = random.choices(possible_mutations, weights=mutation_weights.values())
+                to_mutate = random.choice(range(0, 1000))
+                if to_mutate > 997:
+                    total_mutation_weights = dict(mutation_weights)
+                    total_mutation_weights.update(floating_weights)
+                    print(total_mutation_weights)
+                    mutation = random.choices(possible_mutations, weights=total_mutation_weights.values())
                     genome[y][x] = mutation.pop()
         return genome
 
@@ -106,10 +140,8 @@ class Individual_Grid(object):
         for y in range(height):
             for x in range(left, right):
                 # STUDENT randomly pick gene from self/other
-                #threshold for selecting gene from the other parent (so it's biased towards self)
-                other_threshhold = 60
-                parent = random.choice(range(0,100))
-                if parent > other_threshhold:
+                #half of genes are from each parent
+                if x > right/2: 
                     new_genome[y][x] = other.genome[y][x]
                 # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
         child = Individual_Grid(new_genome)
@@ -399,11 +431,10 @@ def generate_successors(population):
     #generate children from successors
     while len(results) < len(population):
         #get every 2 individuals from successors
-        for individual, other in zip(successors[0::2], successors[1::2]):
-            if len(results) > len(population):
-                break
-            child = individual.generate_children(other)
-            results.append(child)
+        parent1 = random.choice(population)
+        parent2 = random.choice(population)
+        child = parent1.generate_children(parent2)
+        results.append(child)
 
     return results
 
@@ -422,7 +453,7 @@ def ga():
 
         init_time = time.time()
         # STUDENT (Optional) change population initialization
-        population = [Individual.random_individual() if random.random() < 0.9
+        population = [Individual.random_individual() if random.random() < 0.2
                       else Individual.empty_individual()
                       for _g in range(pop_limit)]
         # But leave this line alone; we have to reassign to population because we get a new population that has more cached stuff in it.
