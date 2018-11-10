@@ -140,7 +140,6 @@ class Individual_Grid(object):
                 if to_mutate > 997:
                     total_mutation_weights = dict(mutation_weights)
                     total_mutation_weights.update(floating_weights)
-                    print(total_mutation_weights)
                     mutation = random.choices(possible_mutations, weights=total_mutation_weights.values())
                     genome[y][x] = mutation.pop()
         return genome
