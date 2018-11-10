@@ -39,6 +39,7 @@ class Individual_Grid(object):
     # Update this individual's estimate of its fitness.
     # This can be expensive so we do it once and then cache the result.
     def calculate_fitness(self):
+        # print(self.genome)
         measurements = metrics.metrics(self.to_level())
         # Print out the possible measurements or look at the implementation of metrics.py for other keys:
         # print(measurements.keys())
@@ -91,8 +92,8 @@ class Individual_Grid(object):
                 #40% chance of mutating
                 to_mutate = random.choice(range(0, 100))
                 if to_mutate > 60:
-                    mutation = random.choices(population=possible_mutations, weights=mutation_weights.values())
-                    genome[y][x] = mutation
+                    mutation = random.choices(possible_mutations, weights=mutation_weights.values())
+                    genome[y][x] = mutation.pop()
         return genome
 
     # Create zero or more children from self and other
@@ -179,7 +180,6 @@ class Individual_DE(object):
 
     # Calculate and cache fitness
     def calculate_fitness(self):
-        print(self.genome)
         measurements = metrics.metrics(self.to_level())
         # Default fitness function: Just some arbitrary combination of a few criteria.  Is it good?  Who knows?
         # STUDENT Add more metrics?
