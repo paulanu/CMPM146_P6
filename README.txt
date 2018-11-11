@@ -1,6 +1,6 @@
 Partners:
 	Paula Navarro Ulriksen
-	Lex
+	Alexai Zachow
 
 Selection strategy:
 	The first selection strategy I implemented was roulette selection. I generated a spin from 0 - total_fitness (fitness of all levels added up) and then went through each level, adding up the individual fitnesses, until the first level that goes over the spin is reached. That level is selected to be a parent. This works because levels with higher fitness will have a higher chance of being the level that reaches the spin threshhold. I repeated this process until a third of the population was selected to be successors
@@ -15,9 +15,14 @@ Mutation:
 	Mutation is implemented through constraints. Each gene has a .003% chance of mutation. For each gene, there is a list of possible blocks to mutate to and a dictionary of weights for each block, so that some blocks have a higher chance of being picked for the mutation. The first constraint is that a gene that is not above any surface cannot mutate into a pipe or an enemy, since otherwise they would be floating in the level. However, genes that are floating in air can still be mutated into blocks that can be stood on, and furthermore have a higher chance of mutating into a standing block if the gene is already next to a block. In other words, this creates platforms. Finally, if the gene is at the bottom of the map, it can only mutate into an "X" or an "-", to create pits. 
 	After the mutation is picked, more changes take place. If the gene is going to mutate into a pipe, a random height is selected and the pipe "grows" that height, and finally a pipe top "T" is placed at the top. This is to make sure all pipes are connected and "T"'s aren't randomly placed throughout. 
 	In a similar vein, pits are created when a gene at the bottom of the level mutates into an empty space. A random width is selected and then all genes in that width are converted to empty spaces. 
-	Finally, THIS IS WHERE YOU PUT IN THE JUMPING CONSTRAINT.   
+	Finally, we decided to add a constraint to make sure that all blocks and coins we place are reachable. Essentially, this function looks at each block and sees if there's a jumpable block within 4 tiles of the block's sides or bottom. If not, it sets that block to an empty
+	tile, since Mario can only jump 5 blocks.
 
 Fitness function:
+	The fitness function works to make levels that are both populated and navigable. The function prioritizes solvability over all else, as an unsolvable level is pretty worthless. Next, the function tries to make levels that have many branching paths,
+	but where each of those paths have meaningful jumps. This was done with the intention to creat a "choose your own adventure" style of level, but it created levels that had "tiers" where a skilled player could jump from block to block in order to
+	avoid contact with the hazards on the ground. The most insignificant of the metrics we selected for were related to the percentage of negative space and the amount of empty space that was pathable. This was analyzed in an attempt to give the levels
+	a noticable amount of verticality. Having a large amount of pathable empty space should imply that a large amount of the space in the air on top of blocks is pathable, since the ground is a given in terms of pathability.
 
 Initialization: 
 	I changed the initialization of the first generation so that the majority (80%) of the levels would be empty levels. This fixed a problem of having crazy amounts of scattered blocks early on in the generations. 
@@ -27,6 +32,7 @@ Favorite level:
 
 INDIVIDUAL ENCODING:
 
-mutation:
-	
+Mutation:
+	The mutation algorithm generates a random number and, depending on the type of tile being mutated, offsets the tile's gene by a bounded amount using bounds dependent on the random number generated, turning it into another tile.
 Crossover:
+	The algorithm picks a random set of genes from one parent. It then takes the opposite set of genes from other parent and completes the genome. The leftover genes are combined into a second, "opposite," genome, both of which are returned.
