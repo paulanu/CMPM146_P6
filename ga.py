@@ -442,21 +442,38 @@ def generate_successors(population):
         total_fitness += individual.fitness()
 
     successors = []
-    while len(successors) < len(population)/3:
-        #find successors
-        spin = 0
-        if total_fitness > 0:
-            spin = random.choice(range(0, int(total_fitness)))
-        else:
-            spin = random.choice(range(int(total_fitness), 0))
-        partial_sum = 0
-        successor = None
-        for individual in population:
-            partial_sum += individual.fitness()
-            successor = individual
-            if partial_sum > spin:
-                break
-        successors.append(successor)
+
+    selection_type = 0
+
+    #roulette selection
+    if selection_type == 0:
+        while len(successors) < len(population)/3:
+            #find successors
+            spin = 0
+            if total_fitness > 0:
+                spin = random.choice(range(0, int(total_fitness)))
+            else:
+                spin = random.choice(range(int(total_fitness), 0))
+            partial_sum = 0
+            successor = None
+            for individual in population:
+                partial_sum += individual.fitness()
+                successor = individual
+                if partial_sum > spin:
+                    break
+            successors.append(successor)
+    else:
+        #tournament selection
+        while len(successors) < len(population)/3:
+            contestants = [] 
+            k = 10
+            while len(contestants) < k:
+                contestants.append(random.choice(population))
+            best_contestant = contestants.pop()
+            for contestant in contestants:
+                if contestant.fitness() > best_contestant.fitness(): 
+                    best_contestant = contestant 
+            successors.append(best_contestant)
 
     #generate children from successors
     while len(results) < len(population):
