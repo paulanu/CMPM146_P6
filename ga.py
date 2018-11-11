@@ -49,9 +49,9 @@ class Individual_Grid(object):
             length=0.7,
             meaningfulJumps=2.0,
             meaningfulJumpVariance=-1.0,
-            negativeSpace=1.0,
+            negativeSpace=0.6,
             pathPercentage=1.0,
-            emptyPercentage=0.8,
+            emptyPercentage=0.5,
             linearity=-2.0,
             solvability=100.0
         )
@@ -250,7 +250,7 @@ class Individual_DE(object):
             meaningfulJumpVariance=-1.0,
             negativeSpace=0.6,
             pathPercentage=1.0,
-            emptyPercentage=0.8,
+            emptyPercentage=0.5,
             linearity=-2.0,
             solvability=100.0
         )
