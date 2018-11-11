@@ -28,7 +28,10 @@ Initialization:
 	I changed the initialization of the first generation so that the majority (80%) of the levels would be empty levels. This fixed a problem of having crazy amounts of scattered blocks early on in the generations. 
 
 Favorite level:
-	It took ~30 generations and 2204 seconds for the favorite level to be generated. I like the variation in height and the number of obstacles to jump over. 
+	It took ~30 generations and 2204 seconds for the favorite level to be generated. I like the variation in height and the number of obstacles to jump over.
+	
+Competition:
+	We intend to participate in the competition.
 
 INDIVIDUAL ENCODING:
 
